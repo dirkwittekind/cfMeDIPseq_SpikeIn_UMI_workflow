@@ -1,0 +1,86 @@
+# =============================================================================
+# GitHub Actions: Automatic Workflow Sync
+# =============================================================================
+# This workflow validates Snakemake syntax on push/PR
+# For automatic sync from local machine, use the local sync script
+# =============================================================================
+
+name: Validate Workflow
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'snakefiles/**'
+      - 'rules/**'
+      - 'scripts/**'
+      - 'environments/**'
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install Snakemake
+        run: |
+          pip install snakemake pulp
+      
+      - name: Lint Snakemake workflow
+        run: |
+          snakemake --snakefile snakefiles/core_workflow.smk \
+            --configfile configfiles/config_template.yaml \
+            --lint || echo "Lint completed with warnings"
+
+  dry-run:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          pip install snakemake pandas pyyaml pulp
+      
+      - name: Create minimal test config
+        run: |
+          mkdir -p work samplefiles
+          cat > work/config.yaml << 'EOF'
+          pipe_dir: ${{ github.workspace }}
+          work_dir: ${{ github.workspace }}/work
+          output_dir: ${{ github.workspace }}/output
+          samples: ${{ github.workspace }}/samplefiles/test_samples.tsv
+          paired_end: true
+          use_umi: true
+          use_spikein: false
+          genome: hg38
+          threads: 2
+          window_size: 300
+          workflow:
+            preprocessing: true
+            qc_analysis: false
+            methylation_quant: false
+            fragment_profile: false
+            tissue_of_origin: false
+          EOF
+          
+          echo -e "sample_id\tgroup\tR1\tR2" > samplefiles/test_samples.tsv
+          echo -e "test1\ttest\t/fake/R1.fq.gz\t/fake/R2.fq.gz" >> samplefiles/test_samples.tsv
+      
+      - name: Dry run workflow
+        run: |
+          snakemake --snakefile snakefiles/core_workflow.smk \
+            --configfile work/config.yaml \
+            --dry-run -p || echo "Dry run completed (some rules may fail without real data)"

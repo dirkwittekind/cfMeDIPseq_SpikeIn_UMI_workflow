@@ -1,0 +1,35 @@
+name: medipipe_core
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  # Core tools
+  - python=3.11
+  - snakemake>=7.0,<9.0
+  - pandas>=2.0,<3.0
+  - numpy>=1.24,<2.0
+  - pyyaml
+  
+  # Alignment and processing
+  - bwa>=0.7.17
+  - bowtie2>=2.4,<3.0
+  - samtools>=1.15,<2.0
+  - bedtools>=2.30,<3.0
+  - picard>=2.26,<4.0
+  
+  # QC tools
+  - fastqc>=0.12,<1.0
+  - multiqc>=1.14,<2.0
+  - trim-galore>=0.6,<1.0
+  - cutadapt>=4.0,<5.0
+  
+  # UMI processing
+  - umi_tools>=1.1,<2.0
+  
+  # Coverage and visualization
+  - deeptools>=3.5,<4.0
+  - preseq>=3.1,<4.0
+  
+  # Utilities
+  - htslib
+  - pigz

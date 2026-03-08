@@ -1,0 +1,159 @@
+# =============================================================================
+# MEDIPIPE cfMeDIP-seq Analysis Configuration
+# =============================================================================
+# This is the main configuration file for the MEDIPIPE analysis pipeline.
+# All paths and parameters can be customized here.
+
+# -----------------------------------------------------------------------------
+# Directory Configuration
+# -----------------------------------------------------------------------------
+# Pipeline code and resources (local SSD)
+pipe_dir: /home/dirk/medipipe_warp
+resources_dir: /home/dirk/medipipe_warp/resources
+
+# Working directory for temporary files (local SSD for speed)
+work_dir: /home/dirk/medipipe_warp/work
+
+# Input directory (HDD - raw FASTQ files)
+input_dir: /data/raw_data
+
+# Output directory (HDD - large output files like BAM, BigWig)
+output_dir: /data/medipipe_data/output
+
+# Local outputs (small files - reports, plots)
+local_output_dir: /home/dirk/medipipe_warp/outputs
+
+# -----------------------------------------------------------------------------
+# Sample Configuration
+# -----------------------------------------------------------------------------
+samples: /home/dirk/medipipe_warp/samplefiles/samples.tsv
+samples_aggr: /home/dirk/medipipe_warp/samplefiles/samples_aggr.tsv
+
+# -----------------------------------------------------------------------------
+# Analysis Parameters
+# -----------------------------------------------------------------------------
+# Read type
+paired_end: true
+
+# UMI (Unique Molecular Identifier) processing
+# For Twist UMI Adapter system: 5bp UMI + 2bp skip per read
+# Pattern syntax: (?P<umi_N>.{X}) captures X bases as UMI
+#                 (?P<discard_N>.{Y}) removes Y bases after UMI
+use_umi: false
+umi_regex_r1: "(?P<umi_1>.{5})(?P<discard_1>.{2}).*"
+umi_regex_r2: "(?P<umi_2>.{5})(?P<discard_2>.{2}).*"
+
+# Spike-in controls
+use_spikein: false
+spike_in_chr: ""
+spike_in_fasta: ""
+spike_in_bwa_index: ""
+spike_in_bowtie2_index: ""
+spike_in_bsgenome: ""
+spike_in_bsgenome_pkg: ""
+
+# Reference genome
+genome: hg38
+bsgenome: BSgenome.Hsapiens.UCSC.hg38
+
+# Reference files (auto-populated based on genome)
+ref_files:
+  fasta: /home/dirk/medipipe_warp/resources/genomes/hg38/hg38.fa
+  bwa_index: /home/dirk/medipipe_warp/resources/genomes/hg38/bwa_index/hg38.fa
+  bowtie2_index: /home/dirk/medipipe_warp/resources/genomes/hg38/bowtie2_index/hg38
+  chrom_sizes: /home/dirk/medipipe_warp/resources/genomes/hg38/hg38.chrom.sizes
+  blacklist: /home/dirk/medipipe_warp/resources/genomes/hg38/hg38.blacklist.bed
+  gc_bias: /home/dirk/medipipe_warp/resources/genomes/hg38/gc_bias.tsv
+  rmsk: /home/dirk/medipipe_warp/resources/genomes/hg38/rmsk.bed
+
+# -----------------------------------------------------------------------------
+# Methylation Quantification
+# -----------------------------------------------------------------------------
+window_size: 300
+aggregate: false
+
+# -----------------------------------------------------------------------------
+# Fragment Profile
+# -----------------------------------------------------------------------------
+frag_profile: true
+
+# -----------------------------------------------------------------------------
+# Tissue-of-Origin Analysis
+# -----------------------------------------------------------------------------
+tissue_of_origin:
+  enable: true
+  signature_tsv: /home/dirk/medipipe_warp/resources/tissue_of_origin/reference_methylation_matrix.tsv
+  markers_bed: /home/dirk/medipipe_warp/resources/tissue_of_origin/marker_regions.bed
+  scale: minmax_by_marker
+
+# -----------------------------------------------------------------------------
+# Quality Control
+# -----------------------------------------------------------------------------
+qc:
+  run_fastqc: true
+  run_multiqc: true
+  run_coverage: true
+  run_gc_bias: true
+  run_overamp: true
+  generate_bigwig: true
+  bigwig_bin_size: 25
+  bigwig_normalization: CPM
+
+# -----------------------------------------------------------------------------
+# System Resources
+# -----------------------------------------------------------------------------
+threads: 24
+max_memory_gb: 64
+
+# -----------------------------------------------------------------------------
+# Workflow Selection
+# -----------------------------------------------------------------------------
+# Core workflow stages (1-5)
+workflow:
+  preprocessing: true
+  qc_analysis: true
+  methylation_quant: true
+  fragment_profile: true
+  tissue_of_origin: true
+
+# Advanced workflow stages (6-7)
+advanced:
+  dmr_analysis: false
+  ml_classification: false
+  dl_classification: false
+
+# -----------------------------------------------------------------------------
+# DMR Analysis (Stage 6)
+# -----------------------------------------------------------------------------
+dmr:
+  fdr_threshold: 0.05
+  min_cpg: 3
+  min_diff: 0.1
+  comparison_file: ""  # TSV with group comparisons
+
+# -----------------------------------------------------------------------------
+# ML Classification (Stage 7)
+# -----------------------------------------------------------------------------
+ml:
+  algorithms:
+    - random_forest
+    - gradient_boosting
+    - svm
+    - logistic_regression
+  cv_folds: 5
+  feature_selection: variance_threshold
+  n_features: 1000
+
+# -----------------------------------------------------------------------------
+# DL Classification (Stage 7)
+# -----------------------------------------------------------------------------
+dl:
+  models:
+    - cnn_1d
+    - transformer
+    - autoencoder
+  epochs: 100
+  batch_size: 32
+  learning_rate: 0.001
+  early_stopping_patience: 10
+  use_gpu: true

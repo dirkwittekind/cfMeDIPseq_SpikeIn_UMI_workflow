@@ -1,0 +1,41 @@
+name: medipipe_dl
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+dependencies:
+  - python=3.11
+  - numpy>=1.24,<2.0
+  - pandas>=2.0,<3.0
+  - scipy>=1.10,<2.0
+  
+  # PyTorch with CUDA 12.4 for RTX 5080
+  - pytorch>=2.0,<3.0
+  - pytorch-cuda=12.4
+  - torchvision
+  - torchaudio
+  
+  # Deep Learning utilities
+  - einops
+  - transformers>=4.30,<5.0
+  
+  # Training utilities
+  - tensorboard
+  - pytorch-lightning>=2.0,<3.0
+  - torchmetrics
+  
+  # Visualization
+  - matplotlib>=3.7,<4.0
+  - seaborn>=0.12,<1.0
+  
+  # Data handling
+  - h5py
+  - zarr
+  
+  # Utilities
+  - tqdm
+  - pyyaml
+  - click
+  
+  # Scikit-learn for evaluation
+  - scikit-learn>=1.3,<1.6

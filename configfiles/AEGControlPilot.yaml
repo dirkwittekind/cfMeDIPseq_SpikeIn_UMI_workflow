@@ -1,0 +1,95 @@
+pipe_dir: /home/dirk/medipipe_warp
+resources_dir: /home/dirk/medipipe_warp/resources
+work_dir: /home/dirk/medipipe_warp/work
+input_dir: /data/raw_data
+output_dir: /data/medipipe_data/output
+local_output_dir: /home/dirk/medipipe_warp/outputs
+samples: ''
+samples_aggr: ''
+paired_end: true
+use_umi: true
+add_umi: true
+umi: true
+use_spikein: true
+spike_in: true
+spike_idx: ''
+spike_in_chr: ''
+spike_in_bsgenome: ''
+spike_in_bsgenome_pkg: ''
+umi_regex_r1: (?P<umi_1>.{5})(?P<discard_1>.{2}).*
+umi_regex_r2: (?P<umi_2>.{5})(?P<discard_2>.{2}).*
+umi_pattern: (?P<umi_1>.{5})(?P<discard_1>.{2}).*
+genome: hg38
+bsgenome: BSgenome.Hsapiens.UCSC.hg38
+window_size: 300
+threads: 24
+ref_files:
+  fasta: /home/dirk/medipipe_warp/resources/genomes/hg38/hg38.fa
+  bwa_index: /home/dirk/medipipe_warp/resources/genomes/hg38/bwa_index/hg38.fa
+  bowtie2_index: /home/dirk/medipipe_warp/resources/genomes/hg38/bowtie2_index/hg38
+  chrom_sizes: /home/dirk/medipipe_warp/resources/genomes/hg38/hg38.chrom.sizes
+  blacklist: /home/dirk/medipipe_warp/resources/genomes/hg38/hg38.blacklist.bed
+  gc_bias: /home/dirk/medipipe_warp/resources/genomes/hg38/gc_bias.tsv
+  rmsk: /home/dirk/medipipe_warp/resources/genomes/hg38/rmsk.bed
+frag_profile: true
+aggregate: false
+workflow:
+  preprocessing: true
+  qc_analysis: true
+  methylation_quant: true
+  fragment_profile: true
+  tissue_of_origin: true
+advanced:
+  dmr_analysis: true
+  ml_classification: true
+  dl_classification: true
+tissue_of_origin:
+  enable: true
+  signature_tsv: /home/dirk/medipipe_warp/resources/tissue_of_origin/reference_methylation_matrix.tsv
+  markers_bed: /home/dirk/medipipe_warp/resources/tissue_of_origin/marker_regions.bed
+  scale: minmax_by_marker
+qc:
+  run_fastqc: true
+  run_multiqc: true
+  run_coverage: true
+  run_gc_bias: true
+  run_overamp: true
+  generate_bigwig: true
+  bigwig_bin_size: 25
+  bigwig_normalization: CPM
+ml:
+  algorithms:
+  - random_forest
+  - gradient_boosting
+  - svm
+  - logistic_regression
+  cv_folds: 5
+  feature_selection: variance_threshold
+  n_features: 1000
+dl:
+  models:
+  - cnn_1d
+  - transformer
+  epochs: 100
+  batch_size: 32
+  learning_rate: 0.001
+  early_stopping_patience: 10
+  use_gpu: true
+comparison:
+  group1: ''
+  group2: ''
+ml_discrimination:
+  input_source: bigwig
+  window_size: 2000
+  kbest: 5000
+  C: 1.0
+  mode: methylOnly
+  covariates: []
+  rskfold_splits: 5
+  rskfold_repeats: 50
+  seed: 1
+  run_dmr: true
+  run_univariate: true
+  effective_genome_size: 2913022398
+  promoter_bed: /home/dirk/medipipe_warp/resources/annotations/hg38_promoters_2kb.bed
+  gene_bed: /home/dirk/medipipe_warp/resources/annotations/gencode_v46_genes.bed

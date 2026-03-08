@@ -1,0 +1,5 @@
+sample_id	group	R1	R2
+sample1	control	/data/raw_data/sample1_R1.fastq.gz	/data/raw_data/sample1_R2.fastq.gz
+sample2	control	/data/raw_data/sample2_R1.fastq.gz	/data/raw_data/sample2_R2.fastq.gz
+sample3	case	/data/raw_data/sample3_R1.fastq.gz	/data/raw_data/sample3_R2.fastq.gz
+sample4	case	/data/raw_data/sample4_R1.fastq.gz	/data/raw_data/sample4_R2.fastq.gz

@@ -1,0 +1,36 @@
+name: medipipe_r
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - r-base>=4.2,<4.5
+  - r-tidyverse
+  - r-data.table
+  - r-ggplot2
+  - r-rmarkdown
+  - r-knitr
+  
+  # Bioconductor packages
+  - bioconductor-medips>=1.50
+  - bioconductor-qsea>=1.24
+  - bioconductor-genomicranges
+  - bioconductor-rsamtools
+  - bioconductor-rtracklayer
+  - bioconductor-bsgenome.hsapiens.ucsc.hg38
+  - bioconductor-bsgenome.hsapiens.ucsc.hg19
+  - bioconductor-genomicfeatures
+  - bioconductor-annotationhub
+  - bioconductor-biomart
+  - bioconductor-edger
+  - bioconductor-limma
+  - bioconductor-gsva
+  - bioconductor-clusterprofiler
+  - bioconductor-org.hs.eg.db
+  
+  # Additional R packages
+  - r-matrix
+  - r-nnls
+  - r-pheatmap
+  - r-rcolorbrewer
+  - r-optparse
+  - r-argparse
