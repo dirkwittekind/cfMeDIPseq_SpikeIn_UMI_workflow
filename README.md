@@ -50,7 +50,7 @@ Stage 5: Tissue-of-Origin
 
 ```bash
 # Clone the repository
-git clone https://github.com/dirkwittekind2025/cfMeDIPseq_SpikeIn_UMI_workflow.git
+git clone https://github.com/dirkwittekind/cfMeDIPseq_SpikeIn_UMI_workflow.git
 cd cfMeDIPseq_SpikeIn_UMI_workflow
 
 # Create conda environments (handled automatically by Snakemake)

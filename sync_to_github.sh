@@ -9,7 +9,7 @@
 set -e
 
 # Configuration
-REPO_URL="https://github.com/dirkwittekind2025/cfMeDIPseq_SpikeIn_UMI_workflow.git"
+REPO_URL="https://github.com/dirkwittekind/cfMeDIPseq_SpikeIn_UMI_workflow.git"
 BRANCH="main"
 
 # Colors for output
