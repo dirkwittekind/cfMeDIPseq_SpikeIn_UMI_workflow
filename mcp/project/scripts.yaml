@@ -1,0 +1,388 @@
+# MEDIPIPE MCP Server - Scripts Inventory
+# Last updated: 2026-03-02
+
+scripts:
+  ml:
+    path: "/home/dirk/medipipe_warp/scripts/ml"
+    files:
+      - name: "ml_exact_permutation.py"
+        purpose: "Exact permutation test for ML classification"
+        usage: |
+          python3 ml_exact_permutation.py --matrix MATRIX --annotation ANN 
+            --output OUTPUT --feature-space NAME --case-group CASE --ctrl-group CTRL
+            --model-type [L2|ElasticNet|both]
+        key_params: ["--top-k", "--C", "--alpha", "--model-type"]
+        
+      - name: "ml_visualization.py"
+        purpose: "Generate volcano plots, heatmaps, feature importance plots"
+        usage: |
+          python3 ml_visualization.py --matrix MATRIX --annotation ANN
+            --output OUTPUT --feature-space NAME --case-group CASE --ctrl-group CTRL
+        features: ["gene_name_labels", "z-score_heatmaps", "volcano_plots"]
+        
+      - name: "naturecancer_panel_scoring.py"
+        purpose: "Calculate z-scores for NatureCancer reference panels"
+        usage: "python3 naturecancer_panel_scoring.py"
+        output: "panel_zscore_results.tsv"
+        
+      - name: "calculate_dmr_overlap.py"
+        purpose: "Calculate genomic overlap between DMRs and NatureCancer panels"
+        usage: "python3 calculate_dmr_overlap.py"
+        note: "Use naturecancer_panel_scoring.py for z-score method instead"
+        
+      - name: "calculate_naturecancer_overlap.py"
+        purpose: "Calculate overlap using ML coefficients (deprecated)"
+        note: "Use naturecancer_panel_scoring.py for correct method"
+        
+      - name: "ml_robustness_checks.py"
+        purpose: "Sample stability and robustness analysis"
+        
+      - name: "prepare_features.py"
+        purpose: "Prepare feature matrices for ML"
+        
+      - name: "rank_windows_univariate.py"
+        purpose: "Univariate ranking of genomic windows"
+        
+      - name: "train_ml.py"
+        purpose: "Train ML models"
+        
+      - name: "ml_cv_discrimination.py"
+        purpose: "Cross-validation for ML discrimination"
+
+  gui:
+    path: "/home/dirk/medipipe_warp/gui"
+    purpose: "Full Tkinter desktop GUI for cfMeDIP-seq analysis"
+    launcher: "/home/dirk/medipipe_warp/launch_medipipe.sh"
+    desktop_shortcut: "/home/dirk/Desktop/medipipe.desktop"
+    
+    structure:
+      - name: "main.py"
+        purpose: "Entry point - starts the GUI"
+        usage: "python3 main.py (or use launch_medipipe.sh)"
+      - name: "app.py"
+        purpose: "Main application class (MedipipeApp)"
+        features:
+          - "Modern clam theme with blue accents"
+          - "Large fonts (14pt base, 16pt heading, 20pt title)"
+          - "Hardware monitoring (CPU, RAM, disk)"
+          - "Sample management with group assignment"
+          - "Tabbed interface (Workflow, Parameters, ML Analysis)"
+      - name: "components/"
+        purpose: "UI components"
+        files:
+          - "file_browser.py - File selection dialog"
+          - "workflow_panel.py - Workflow stage selection (UMI/spike-in options)"
+          - "config_panel.py - Analysis parameters"
+          - "progress_panel.py - Real-time workflow progress"
+          - "hardware_monitor.py - CPU/RAM/disk monitoring"
+          - "ml_panel.py - ML discrimination analysis panel"
+      - name: "controllers/"
+        purpose: "Application logic"
+        files:
+          - "config_manager.py - YAML config handling"
+          - "sample_manager.py - Sample discovery and validation"
+          - "workflow_controller.py - Snakemake execution"
+    
+    tabs:
+      - name: "Workflow"
+        features:
+          - "Core workflow stages (preprocessing, QC, methylation)"
+          - "Advanced options (DMR, ML, DL)"
+          - "UMI deduplication (enabled by default)"
+          - "Spike-in analysis (enabled by default)"
+      - name: "Parameters"
+        features:
+          - "Genome selection (hg38/hg19)"
+          - "Window size"
+          - "Thread count"
+          - "I/O directories"
+      - name: "QC Reports"
+        features:
+          - "Auto-detects QC reports from output directory"
+          - "Displays per-sample QC status (PASS/FAIL/PENDING)"
+          - "Shows deduplicated read counts, relH, GoGe, quality metrics"
+          - "Spike-in status with color coding (green=PASS, orange=WARNING, red=FAIL)"
+          - "Double-click sample to view full QC report"
+          - "View Summary button for all-samples report"
+          - "Auto-refreshes after workflow completion"
+      - name: "ML Analysis"
+        features:
+          - "Feature matrix selection"
+          - "Group comparison (e.g., AEG vs CTRL)"
+          - "Model selection (L2/L1/ElasticNet)"
+          - "Exact permutation testing"
+          - "AlphaGenome integration for intergenic regions"
+          - "Visualization generation"
+    
+    ui_features:
+      - "Modern clam theme"
+      - "Large fonts for accessibility (14pt base)"
+      - "Tabbed interface"
+      - "Real-time log output"
+      - "Progress tracking"
+      - "Hardware monitoring"
+
+  reporting:
+    path: "/home/dirk/medipipe_warp/scripts/reporting"
+    files:
+      - name: "generate_qc_summary.py"
+        purpose: "Generate QC summary with unique fragments and IP efficiency"
+        usage: "python3 generate_qc_summary.py --aeg-ctrl"
+        note: "MUST be included in every report (DEC-006)"
+        metrics:
+          - "Unique fragments (UMI dedup)"
+          - "relH (CpG enrichment, threshold >2.5)"
+          - "GoGe (observed/expected CpG, threshold >1.5)"
+      - name: "generate_ml_report.py"
+        purpose: "Generate ML analysis report"
+      - name: "generate_sample_report.py"
+        purpose: "Generate sample QC report"
+        
+  qc:
+    path: "/home/dirk/medipipe_warp/scripts/qc"
+    
+    workflow_integration:
+      snakemake_rule: "rules/qc/qc_report.smk"
+      auto_generated: true
+      trigger: "After dedup_bam_pe stage completes for all samples"
+      per_sample: true  # Also generates per-sample reports incrementally
+      
+    files:
+      - name: "generate_qc_report.py"
+        purpose: "Comprehensive QC report generator for MEDIPIPE samples"
+        usage: |
+          python3 generate_qc_report.py --output-dir OUTPUT_DIR [--spikein-dir SPIKEIN_DIR] [--samples S1 S2 ...]
+        features:
+          - "Auto-detect samples from output directory"
+          - "Auto-detect spike-in output directory"
+          - "Deduplicated read counts"
+          - "Unique molecules (UMI-based)"
+          - "Methylation QC metrics (relH, GoGe, saturation, enrichment)"
+          - "Alignment quality metrics (insert size, base quality, error rate)"
+          - "Overamplification detection"
+          - "Comprehensive spike-in analysis:"
+          - "  - Spike-in relH (IP efficiency, threshold >2.5)"
+          - "  - Spike-in GoGe (CpG specificity, threshold >1.5)"
+          - "  - Methylated vs unmethylated spike-in read counts"
+          - "  - Meth ratio (threshold >0.7)"
+          - "  - Per-sample spike-in PASS/FAIL status"
+          - "QC pass/fail thresholds"
+        outputs:
+          summary: "qc_reports/qc_report.{txt,tsv,json}"
+          per_sample: "qc_reports/per_sample/{sample}_qc.{txt,json}"
+        thresholds:
+          min_dedup_reads: 5000000
+          max_duplication_rate: 0.9
+          min_relH: 1.5
+          max_relH: 10.0
+          min_GoGe: 1.0
+          min_spikein_recovery: 0.5
+          min_spikein_relH: 2.5
+          min_spikein_GoGe: 1.5
+          min_spikein_meth_ratio: 0.7
+          overamp_umi_ratio: 10
+        spike_in_metrics:
+          description: "Metrics from synthetic DNA spike-ins added before cfMeDIP"
+          relH: "Relative CpG enrichment from spike-in reference (IP efficiency)"
+          GoGe: "Observed/expected CpG ratio (specificity for methylated DNA)"
+          meth_reads: "Read count from methylated spike-in fragments"
+          unmeth_reads: "Read count from unmethylated spike-in fragments"
+          meth_ratio: "meth_reads / (meth_reads + unmeth_reads) - should be >0.7"
+          status: "PASS if all thresholds met, WARNING with specific issues otherwise"
+        alignment_metrics:
+          description: "Quality metrics from samtools stats on deduplicated BAM"
+          insert_size_avg: "Mean fragment insert size (cfDNA typically ~165bp)"
+          insert_size_std: "Standard deviation of insert size"
+          avg_quality: "Average Phred base quality score (Q30=99.9% accuracy, Q36=99.97%)"
+          error_rate: "Estimated sequencing error rate"
+
+  advanced:
+    path: "/home/dirk/medipipe_warp/scripts/advanced"
+    files:
+      - name: "score_reference_panels.py"
+        purpose: "Score samples against reference panels"
+
+  core:
+    path: "/home/dirk/medipipe_warp/scripts/core"
+    files:
+      - name: "medips_analysis.R"
+        purpose: "MEDIPS methylation quantification and QC"
+        usage: |
+          Rscript --vanilla medips_analysis.R --bam BAM --output PREFIX 
+            --genome hg38 --window 1000 --paired [--skip_qsea]
+        key_params:
+          - "--window: Window size (default 1000bp to avoid integer overflow)"
+          - "--skip_qsea: Skip QSEA analysis (default: TRUE, very slow)"
+          - "--method: medips|medestrand|qsea|all (default: medips)"
+        note: |
+          QSEA is disabled by default as it takes many hours for whole-genome analysis.
+          MEDIPS alone provides sufficient methylation quantification.
+          To enable QSEA: use --method all and remove --skip_qsea flag.
+      - name: "medips_spikein.R"
+        purpose: "MEDIPS QC/quantification specifically for spike-in BAMs"
+        usage: |
+          Rscript --vanilla medips_spikein.R --bam SPIKEIN_BAM --output PREFIX
+            --bsgenome BSgenome.Hsapiens.UCSC.hg38plusspikeins --window 300
+        note: "Requires custom BSgenome package with spike-in sequences"
+      - name: "nnls_deconv.py"
+        purpose: "NNLS Tissue-of-Origin deconvolution (Loyfer et al. 2023)"
+        usage: |
+          python3 nnls_deconv.py -s SAMPLE_MATRIX -r REFERENCE_MATRIX 
+            -m MARKERS_BED -o OUTPUT --scale cfmedip
+        features:
+          - "Coordinate-to-marker_id conversion via BED file"
+          - "cfMeDIP-specific per-marker min-max scaling"
+          - "Multi-sample matrix support"
+          - "Based on Loyfer et al. 2023 (Nature) methodology"
+
+  dl:
+    path: "/home/dirk/medipipe_warp/scripts/dl"
+    purpose: "Deep learning models (experimental)"
+    files:
+      - name: "train_dl.py"
+        purpose: "Train deep learning models"
+      - name: "datasets.py"
+        purpose: "Dataset loaders for DL"
+      - name: "models/cnn_1d.py"
+        purpose: "1D CNN model"
+      - name: "models/transformer.py"
+        purpose: "Transformer model"
+
+  alphagenome:
+    path: "/home/dirk/medipipe_warp/scripts/advanced/alphagenome"
+    purpose: "AlphaGenome integration for regulatory element and motif analysis"
+    description: |
+      Google DeepMind AlphaGenome model integration for cfMeDIP-seq regulatory analysis.
+      Predicts chromatin accessibility, transcription factor binding, and identifies
+      regulatory hotspots in genomic regions of interest (DMRs, ML-selected windows).
+    use_case: "Analyze DMRs and intergenic driver regions for regulatory function"
+    integrated: true
+    api_required: "ALPHAGENOME_API_KEY environment variable"
+    
+    workflow_integration:
+      snakemake_rules: "rules/advanced/alphagenome.smk"
+      workflow_file: "snakefiles/advanced_workflow.smk"
+      config_section: "alphagenome:" in config.yaml
+      enable_setting: "alphagenome.enable: true"
+      
+    files:
+      - name: "alphagenome_region_tracks.py"
+        purpose: "Predict DNASE, CAGE, and TF binding tracks for genomic regions"
+        outputs: ["alphagenome/region_tracks.tsv"]
+        usage: |
+          # Via Snakemake (recommended):
+          snakemake --snakefile snakefiles/advanced_workflow.smk alphagenome_region_tracks
+          
+          # Or standalone CLI:
+          python3 alphagenome_region_tracks.py --regions INPUT.bed --output OUTPUT.tsv \
+            --api-key-env ALPHAGENOME_API_KEY --ontology-terms "UBERON:0007650,UBERON:0001043"
+        
+      - name: "alphagenome_ism_hotspots.py"
+        purpose: "In-Silico Mutagenesis (ISM) to identify regulatory hotspots"
+        outputs: ["alphagenome/ism_hotspots.tsv", "alphagenome/ism_bedgraph.tsv"]
+        note: "Identifies nucleotides critical for regulatory activity via saturation mutagenesis"
+        usage: |
+          python3 alphagenome_ism_hotspots.py --regions INPUT.bed \
+            --output-hotspots HOTSPOTS.tsv --output-bedgraph BEDGRAPH.tsv \
+            --ism-output DNASE --quantile 0.995
+        
+      - name: "alphagenome_merge_report.py"
+        purpose: "Merge predictions into final report with top TF tracks and hotspots"
+        outputs: ["alphagenome/final_report.tsv"]
+        
+    conda_env: "environments/alphagenome.yaml"
+    conda_packages: "python=3.11, pandas, numpy, tqdm, alphagenome (pip)"
+    
+    enable_in_config: |
+      # In work/config.yaml or configfiles/config_template.yaml, set:
+      alphagenome:
+        enable: true
+        api_key_env: ALPHAGENOME_API_KEY
+        input_regions: "/path/to/regions.bed"  # e.g., DMRs or top ML windows
+        ontology_terms:
+          - UBERON:0007650  # Brain prefrontal cortex
+          - UBERON:0001043  # Esophagus
+          - UBERON:0000945  # Stomach
+          - UBERON:0000178  # Blood
+        requested_outputs:
+          - DNASE
+          - CAGE
+          - CHIP_TF
+        sequence_length_key: SEQUENCE_LENGTH_16KB
+        top_n_regions: 100
+        ism_output: DNASE
+        ism_max_len_bp: 512
+        ism_quantile: 0.995
+        min_hotspot_bp: 8
+    
+    run_workflow: |
+      # Run via advanced workflow:
+      export ALPHAGENOME_API_KEY="your-api-key-here"
+      snakemake --snakefile snakefiles/advanced_workflow.smk \
+        --configfile work/config.yaml \
+        --cores 4 --use-conda alphagenome
+    
+    output_interpretation:
+      dnase_region_max: "Chromatin accessibility score (higher = more open chromatin)"
+      top_TF_tracks: "Predicted TF binding (comma-separated, e.g., CTCF, POLR2A, MYC)"
+      hotspot_count: "Number of ISM-identified regulatory hotspots in region"
+      hotspot_total_bp: "Total base pairs covered by regulatory hotspots"
+      hotspot_max_importance: "Maximum ISM importance score (regulatory sensitivity)"
+      
+    biological_interpretation:
+      high_dnase_ctcf: "High DNase + CTCF binding → Likely insulator/boundary element"
+      high_dnase_polr2a: "High DNase + POLR2A → Likely active enhancer/promoter"
+      high_cage: "High CAGE signal → Active transcription start site nearby"
+      many_hotspots: "Multiple ISM hotspots → Complex regulatory element"
+
+spike_in:
+  description: "Wilson spike-in controls for cfMeDIP-seq normalization and QC"
+  enabled: true  # Always use hg38+spikeins reference
+  
+  reference:
+    fasta: "/home/dirk/medipipe_warp/resources/genomes/hg38_plus_spikeins/hg38_plus_spikeins.fa"
+    bwa_index: "/home/dirk/medipipe_warp/resources/genomes/hg38_plus_spikeins/bwa_index/hg38_plus_spikeins.fa"
+    bowtie2_index: "/home/dirk/medipipe_warp/resources/genomes/hg38_plus_spikeins/bowtie2_index/hg38_plus_spikeins"
+    bsgenome_pkg: "/home/dirk/medipipe_warp/resources/bsgenome/BSgenome.Hsapiens.UCSC.hg38plusspikeins_1.0.0.tar.gz"
+    bsgenome_name: "BSgenome.Hsapiens.UCSC.hg38plusspikeins"
+  
+  contigs: "52 Wilson spike-in sequences (80bp, 160bp, 320bp) with varying CpG density and methylation status"
+  contig_pattern: "80b_*, 160b_*, 320b_* (unmeth/meth variants)"
+  
+  qc_thresholds:
+    min_relH: 2.5  # CpG enrichment (IP efficiency)
+    min_GoGe: 1.5  # Observed/expected CpG ratio
+    min_meth_ratio: 0.7  # Methylated/(meth+unmeth) reads
+  
+  workflow_rules:
+    - "install_spikein_bsgenome: Install custom BSgenome package"
+    - "extract_spikein_bam: Extract spike-in reads from dedup BAM"
+    - "meth_qc_quant_spikein: Run MEDIPS on spike-in BAM"
+    - "insert_size_spikein: Collect insert size metrics for spike-ins"
+  
+  output_location: "/data/medipipe_data/output/meth_quant_spikein/"
+
+common_commands:
+  run_gui: "/home/dirk/medipipe_warp/launch_medipipe.sh  # Or: python3 /home/dirk/medipipe_warp/gui/main.py"
+  run_qc_report: |
+    python3 /home/dirk/medipipe_warp/scripts/qc/generate_qc_report.py \
+      --output-dir /data/medipipe_data/output
+  
+  run_visualization: |
+    python3 /home/dirk/medipipe_warp/scripts/ml/ml_visualization.py \
+      --matrix "/data/medipipe_data/output/ml_discrimination/matrices/windows/hg38_w2000/all/matrix_autosomal.tsv" \
+      --annotation "/data/medipipe_data/output/_upload_package_meta/sample_annotation.active.with_covariates.clean.tsv" \
+      --output "/data/medipipe_data/output/ml_discrimination/Outputs/AEG_vs_CTRL/visualizations" \
+      --feature-space "autosomal_windows" \
+      --case-group "AEG" --ctrl-group "CTRL" --model-type "both"
+  
+  run_panel_scoring: "python3 /home/dirk/medipipe_warp/scripts/ml/naturecancer_panel_scoring.py"
+  
+  run_alphagenome_intergenic: |
+    # Run AlphaGenome on intergenic/unannotated driver regions
+    python3 /home/dirk/medipipe_warp/scripts/ml/run_alphagenome_drivers.py \
+      --drivers "/data/medipipe_data/output/ml_discrimination/Outputs/AEG_vs_CTRL/visualizations/top10_L2_drivers_table.tsv" \
+      --output-dir "/data/medipipe_data/output/ml_discrimination/Outputs/AEG_vs_CTRL/alphagenome" \
+      --filter-intergenic \
+      --top-n 10 \
+      --dry-run  # Remove --dry-run to execute
