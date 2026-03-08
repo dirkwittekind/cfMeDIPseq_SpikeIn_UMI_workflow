@@ -386,3 +386,55 @@ common_commands:
       --filter-intergenic \
       --top-n 10 \
       --dry-run  # Remove --dry-run to execute
+
+github:
+  description: "GitHub repository management for MEDIPIPE workflow"
+  
+  repositories:
+    public:
+      name: "cfMeDIPseq_SpikeIn_UMI_workflow"
+      url: "https://github.com/dirkwittekind/cfMeDIPseq_SpikeIn_UMI_workflow"
+      description: "Public workflow for cfMeDIP-seq analysis (scripts, rules, environments)"
+      sync_script: "/home/dirk/medipipe_warp/sync_to_github.sh"
+      
+    private:
+      name: "cfMeDIPseq_backup_private"
+      url: "https://github.com/dirkwittekind/cfMeDIPseq_backup_private"
+      description: "Private full backup including configurations and samples"
+      backup_script: "/home/dirk/medipipe_warp/backup_to_github.sh"
+      auto_backup: true
+      backup_schedule: "Every 6 hours (cron: 0 */6 * * *)"
+      
+  commands:
+    sync_public: |
+      # Sync adapted code to public repository
+      /home/dirk/medipipe_warp/sync_to_github.sh "Your commit message"
+      
+    backup_private: |
+      # Manual backup to private repository
+      /home/dirk/medipipe_warp/backup_to_github.sh "Manual backup"
+      
+    check_backup_status: |
+      # Check last backup log
+      tail -50 /home/dirk/medipipe_warp/work/logs/backup.log
+      
+    check_cron: |
+      # Verify automatic backup cron job
+      crontab -l | grep backup_to_github
+      
+  backup_includes:
+    - "Snakemake workflows and rules"
+    - "Python, R, and shell scripts"
+    - "Conda environment definitions"
+    - "Configuration files (config.yaml, samples.tsv)"
+    - "GUI application"
+    - "MCP server documentation"
+    - "GitHub workflows"
+    
+  backup_excludes:
+    - "Raw data files (FASTQ, BAM)"
+    - "Reference genomes and indices"
+    - "Large output files (BigWig, RData)"
+    - "Temporary processing files"
+    - "Log files"
+    - ".snakemake directory"
