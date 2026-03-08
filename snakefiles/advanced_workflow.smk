@@ -24,6 +24,9 @@ include: os.path.join(RULES_DIR, "advanced/ml_classification.smk")
 include: os.path.join(RULES_DIR, "advanced/dl_models.smk")
 include: os.path.join(RULES_DIR, "advanced/ml_discrimination.smk")
 
+# Include AlphaGenome regulatory analysis (optional)
+include: os.path.join(RULES_DIR, "advanced/alphagenome.smk")
+
 
 # =============================================================================
 # Main Target Rule
@@ -77,3 +80,15 @@ rule classification:
     input:
         rules.stage7_ml.input,
         rules.stage7_dl.input
+
+
+# =============================================================================
+# AlphaGenome Regulatory Analysis
+# =============================================================================
+rule alphagenome:
+    """Run AlphaGenome regulatory element analysis on DMRs/windows.
+    
+    Requires: ALPHAGENOME_API_KEY environment variable
+    """
+    input:
+        get_alphagenome_targets() if 'get_alphagenome_targets' in dir() else []

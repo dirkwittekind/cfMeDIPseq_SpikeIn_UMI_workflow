@@ -157,3 +157,34 @@ dl:
   learning_rate: 0.001
   early_stopping_patience: 10
   use_gpu: true
+
+# -----------------------------------------------------------------------------
+# AlphaGenome Regulatory Analysis (Optional)
+# -----------------------------------------------------------------------------
+# Uses Google DeepMind's AlphaGenome model to predict regulatory activity
+# for genomic regions (e.g., DMRs, ML-selected windows).
+# Requires: ALPHAGENOME_API_KEY environment variable
+alphagenome:
+  enable: false
+  api_key_env: ALPHAGENOME_API_KEY
+  # Input BED file with regions to analyze (default: significant DMRs)
+  input_regions: ""  # e.g., /path/to/dmrs.bed
+  # Ontology terms for tissue-specific predictions (UBERON codes)
+  ontology_terms:
+    - UBERON:0007650  # Brain prefrontal cortex
+    - UBERON:0001043  # Esophagus
+    - UBERON:0000945  # Stomach
+    - UBERON:0000178  # Blood
+  # Requested output modalities
+  requested_outputs:
+    - DNASE    # Chromatin accessibility
+    - CAGE     # Transcription start sites
+    - CHIP_TF  # Transcription factor binding
+  # Model parameters
+  sequence_length_key: SEQUENCE_LENGTH_16KB
+  top_n_regions: 100
+  # ISM (In-Silico Mutagenesis) parameters
+  ism_output: DNASE
+  ism_max_len_bp: 512
+  ism_quantile: 0.995
+  min_hotspot_bp: 8

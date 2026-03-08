@@ -1,0 +1,15 @@
+name: alphagenome_motif
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.11
+  - pandas
+  - numpy
+  - tqdm
+  - pyfaidx
+  - anndata
+  - pip
+  - pip:
+      - alphagenome
+
