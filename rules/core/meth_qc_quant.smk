@@ -6,14 +6,19 @@
 # MEDIPS + MeDEStrand + QSEA Analysis
 # -----------------------------------------------------------------------------
 rule meth_qc_quant:
-    """Run MEDIPS, MeDEStrand, and QSEA for methylation QC and quantification"""
+    """Run MEDIPS, MeDEStrand, and QSEA for methylation QC and quantification
+    
+    Outputs:
+      - {sample}.medips.tsv: Methylation counts per window
+      - {sample}.medips.rms.bedGraph: Relative methylation scores (bedGraph)
+      - {sample}.summary.txt: QC summary with read counts, coverage, window size
+    """
     input:
         bam=get_dedup_bam
     output:
         medips=os.path.join(OUTPUT_DIR, "meth_quant/{sample}.medips.tsv"),
         summary=os.path.join(OUTPUT_DIR, "meth_quant/{sample}.summary.txt"),
-        qc=os.path.join(OUTPUT_DIR, "meth_quant/{sample}_meth_qc.txt"),
-        counts=os.path.join(OUTPUT_DIR, "meth_quant/{sample}_count.txt")
+        bedgraph=os.path.join(OUTPUT_DIR, "meth_quant/{sample}.medips.rms.bedGraph")
     params:
         genome=GENOME,
         paired=PAIRED_END,
@@ -30,20 +35,16 @@ rule meth_qc_quant:
         os.path.join(ENV_DIR, "medipipe_r.yaml")
     shell:
         """
-        mkdir -p $(dirname {output.qc})
+        mkdir -p $(dirname {output.summary})
         
         Rscript --vanilla {params.script_dir}/medips_analysis.R \\
             --bam {input.bam} \\
-            --output $(dirname {output.qc})/{wildcards.sample} \\
+            --output $(dirname {output.summary})/{wildcards.sample} \\
             --genome {params.genome} \\
             --window {params.window_size} \\
             --paired \\
             --skip_qsea \\
             2> {log}
-        
-        # Create compatibility output files (summary is created by R script)
-        touch {output.qc}
-        touch {output.counts}
         """
 
 

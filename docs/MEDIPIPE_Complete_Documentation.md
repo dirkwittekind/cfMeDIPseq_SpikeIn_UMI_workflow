@@ -66,13 +66,27 @@ pkill -f "snakemake.*core_workflow"
 /data/medipipe_data/                # Data storage (Elements drive)
 ├── output/                         # Analysis outputs
 │   ├── fastqc/                     # FastQC reports
-│   ├── dedup_bam_umi/              # Deduplicated BAMs
-│   ├── meth_quant/                 # Methylation quantification
+│   ├── dedup_bam_umi/              # Deduplicated BAMs ({sample}_dedup.bam)
+│   ├── meth_quant/                 # Methylation QC (.summary.txt, .medips.tsv)
+│   ├── meth_quant_spikein/         # Spike-in QC (_meth_qc.txt)
+│   ├── insert_size/                # Insert size metrics
+│   ├── fragment_profile/           # Fragment profiles
 │   ├── tissue_deconv/              # Tissue of origin
-│   ├── bigwig/                     # Coverage tracks
+│   ├── bigwig/                     # Coverage tracks ({sample}.bw)
 │   └── qc_reports/                 # QC reports
 └── temp/                           # Temporary files
 ```
+
+### Output Naming Conventions
+| Directory | File Pattern | Description |
+|-----------|--------------|-------------|
+| meth_quant/ | {sample}.summary.txt | QC summary (reads, coverage) |
+| meth_quant/ | {sample}.medips.tsv | Methylation counts per window |
+| meth_quant/ | {sample}.medips.rms.bedGraph | Relative methylation scores |
+| meth_quant_spikein/ | {sample}_meth_qc.txt | Spike-in QC metrics |
+| dedup_bam_umi/ | {sample}_dedup.bam | Deduplicated BAM |
+| insert_size/ | {sample}_insert_size_metrics.txt | Insert size distribution |
+| fragment_profile/ | {sample}_fragment_profile.txt | Fragment size profile |
 
 ---
 

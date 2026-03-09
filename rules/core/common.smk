@@ -174,8 +174,8 @@ def get_core_workflow_targets():
     
     # Stage 3: Methylation Quantification
     if workflow_config.get("methylation_quant", True):
-        targets += expand(os.path.join(OUTPUT_DIR, "meth_quant/{sample}_meth_qc.txt"), sample=SAMPLE_IDS)
-        targets += expand(os.path.join(OUTPUT_DIR, "meth_quant/{sample}_count.txt"), sample=SAMPLE_IDS)
+        targets += expand(os.path.join(OUTPUT_DIR, "meth_quant/{sample}.summary.txt"), sample=SAMPLE_IDS)
+        targets += expand(os.path.join(OUTPUT_DIR, "meth_quant/{sample}.medips.tsv"), sample=SAMPLE_IDS)
     
     # Stage 4: Fragment Profile
     if workflow_config.get("fragment_profile", True) and config.get("frag_profile", True):
